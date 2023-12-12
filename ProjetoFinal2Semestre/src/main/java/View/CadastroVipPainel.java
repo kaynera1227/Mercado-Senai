@@ -1,15 +1,14 @@
 package main.java.View;
 
-import java.util.List;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.text.ParseException;
 
 import main.java.Connection.ClientesDAO;
 import main.java.Controller.ClientesControl;
-import main.java.Model.Clientes;
 
 public class CadastroVipPainel extends JPanel {
     private JLabel tituloCadastro;
@@ -18,16 +17,13 @@ public class CadastroVipPainel extends JPanel {
     private JTextField inserirNome;
     private JLabel cpfLabel;
     private JTextField inserirCpf;
-    private List<Clientes> clientes; // Lista de clientes
-    private JTable table;
-    private DefaultTableModel tableModel;
 
     public CadastroVipPainel() {
         tituloCadastro = new JLabel("Cadastro de Cliente");
         nomeLabel = new JLabel("Nome:");
         inserirNome = new JTextField(15);
         cpfLabel = new JLabel("CPF:");
-        inserirCpf = new JTextField(15);
+        inserirCpf = new JFormattedTextField(formatar ("###.###.###-##"));
         cadastroButton = new JButton("Cadastrar");
 
         cadastroButton.setPreferredSize(new Dimension(100, 40));
@@ -71,8 +67,9 @@ public class CadastroVipPainel extends JPanel {
         gbc.gridwidth = 2;
         add(cadastroButton, gbc);
 
+        // Criar a Tabela se ela não existir
+        new ClientesDAO().criaTabela();
 
-        ClientesControl operacoes = new ClientesControl(clientes, tableModel, table); // Instância do controlador
 
         cadastroButton.addActionListener(new ActionListener() {
             @Override
@@ -81,12 +78,21 @@ public class CadastroVipPainel extends JPanel {
 
                 inserirNome.setText("");
                 inserirCpf.setText("");
-
-                String nome = inserirNome.getText();
-                String cpf = inserirCpf.getText();
-
-                JOptionPane.showMessageDialog(null, "Cliente VIP Cadastrado!\nNome: " + nome + "\nCPF: " + cpf);
             }
         });
+
     }
+
+    ClientesControl operacoes = new ClientesControl(); // Instância do controlador
+
+    private MaskFormatter formatar(String mascara){
+        MaskFormatter mask = null;
+        try{
+            mask = new MaskFormatter(mascara);
+        }catch(ParseException e){
+            System.out.println("Formatacao com erro"+ e);
+        }
+        return mask;
+    }
+
 }

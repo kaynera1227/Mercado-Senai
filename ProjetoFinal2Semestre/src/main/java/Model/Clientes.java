@@ -27,8 +27,4 @@ public class Clientes {
         this.cpfCliente = cpfCliente;
     }
 
-    public String getCpf() {
-        return null;
-    }
-
 }

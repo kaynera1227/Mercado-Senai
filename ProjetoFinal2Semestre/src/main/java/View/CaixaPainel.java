@@ -1,98 +1,115 @@
 package main.java.View;
 
-import java.awt.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
+
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.text.ParseException;
 
 public class CaixaPainel extends JPanel {
-
-    private JTextField codigoProdutoField;
-    private JTextField quantidadeField;
-    private JList<String> listaProdutos;
-    private DefaultListModel<String> listaModelo;
-    private JButton adicionarProdutoBtn;
-    private JButton removerProdutoBtn;
-    private JLabel descontoLabel;
-    private JTextField cpfClienteVipField;
-    private JButton validarCpfBtn;
+    private JTable table;
+    private DefaultTableModel tableModel;
 
     public CaixaPainel() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 5, 5, 2);
-        gbc.anchor = GridBagConstraints.WEST;
+        setLayout(new BorderLayout());
 
-        // Campo para inserir o código do produto
-        codigoProdutoField = new JTextField(10);
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        add(new JLabel("Código do Produto:"), gbc);
-        gbc.gridx = 1;
-        add(codigoProdutoField, gbc);
+        JPanel panelTop = criarPainelTop();
+        JScrollPane scrollPane = criarScrollPane();
+        JPanel panelBotoes = criarPainelBotoes();
+        JPanel panelClienteVIP = criarPainelClienteVIP();
 
-        // Campo para inserir a quantidade de unidades
-        quantidadeField = new JTextField(2);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        add(new JLabel("Quantidade:"), gbc);
-        gbc.gridx = 1;
-        add(quantidadeField, gbc);
+        JPanel panelCentral = new JPanel(new BorderLayout());
+        panelCentral.add(panelTop, BorderLayout.NORTH);
+        panelCentral.add(scrollPane, BorderLayout.CENTER);
 
-        // Lista para adicionar os produtos
-        listaModelo = new DefaultListModel<>();
-        listaProdutos = new JList<>(listaModelo);
-        listaProdutos.setVisibleRowCount(5);
-        JScrollPane scrollPane = new JScrollPane(listaProdutos);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setPreferredSize(new Dimension(350, 150));
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 4;
-        gbc.fill = GridBagConstraints.BOTH;
-        add(scrollPane, gbc);
-        gbc.gridwidth = 1;
+        add(panelCentral, BorderLayout.CENTER);
+        add(panelBotoes, BorderLayout.SOUTH);
+        add(panelClienteVIP, BorderLayout.EAST);
+    }
 
-        // Botões para adicionar e remover produtos
-        adicionarProdutoBtn = new JButton("Adicionar Produto");
-        adicionarProdutoBtn.setBackground(Color.GREEN);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        add(adicionarProdutoBtn, gbc);
+    private JPanel criarPainelTop() {
+        JPanel panelTop = new JPanel();
+        // Seu código para o painel Top aqui
+        panelTop.add(new JLabel("Código do Produto:"));
+        panelTop.add(new JTextField(10));
+        panelTop.add(new JLabel("Quantidade:"));
+        panelTop.add(new JTextField(5));
+        panelTop.add(new JButton("Adicionar"));
+        panelTop.add(new JButton("Remover"));
+        return panelTop;
+    }
 
-        removerProdutoBtn = new JButton("Remover Produto");
-        removerProdutoBtn.setBackground(Color.RED);
-        removerProdutoBtn.setForeground(Color.WHITE);
-        gbc.gridx = 1;
-        add(removerProdutoBtn, gbc);
+    private JScrollPane criarScrollPane() {
+        JPanel panelLista = new JPanel();
+        panelLista.setLayout(new BorderLayout());
 
-        // Indicação visual de desconto para Cliente VIP
-        descontoLabel = new JLabel("Cliente VIP");
-        descontoLabel.setForeground(Color.BLUE);
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 4;
-        add(descontoLabel, gbc);
+        tableModel = new DefaultTableModel(new Object[][] {},
+                new String[] { "Produto", "Código", "Valor Unitário", "Quantidade"});
+        table = new JTable(tableModel);
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
 
-        // Campo para inserir o CPF do cliente VIP
-        GridBagConstraints gbcCpf = new GridBagConstraints();
-        gbcCpf.gridx = 0;
-        gbcCpf.gridy = 5;
-        gbcCpf.insets = new Insets(2, 5, 5, 0);
-        gbcCpf.anchor = GridBagConstraints.WEST;
-        add(new JLabel("CPF do Cliente VIP:"), gbcCpf);
+        JScrollPane scrollPane = new JScrollPane(table);
+        panelLista.add(scrollPane);
 
-        cpfClienteVipField = new JTextField(8);
-        gbcCpf.gridx = 1;
-        gbcCpf.gridwidth = 3;
-        add(cpfClienteVipField, gbcCpf);
+        // Tratamento de Eventos
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent evt) {
+                int linhaSelecionada = table.rowAtPoint(evt.getPoint());
+                if (linhaSelecionada != -1) {
+                    // Aqui você pode realizar ações com base na linha selecionada
+                    String produto = (String) table.getValueAt(linhaSelecionada, 0);
+                    String codigo = (String) table.getValueAt(linhaSelecionada, 1);
+                    String valorUnit = (String) table.getValueAt(linhaSelecionada, 2);
+                    String quantidade = (String) table.getValueAt(linhaSelecionada, 3);                                                           
+                }
+            }
+        });
 
-        // Botão "Validar" para o CPF
-        validarCpfBtn = new JButton("Validar");
-        GridBagConstraints gbcValidarCpf = new GridBagConstraints();
-        gbcValidarCpf.gridx = 2;
-        gbcValidarCpf.gridy = 5;
-        gbcValidarCpf.insets = new Insets(2, 0, 5, 5);
-        gbcValidarCpf.anchor = GridBagConstraints.WEST;
-        add(validarCpfBtn, gbcValidarCpf);
+        return scrollPane;
+    }
+
+    private JPanel criarPainelClienteVIP() {
+        JPanel panelClienteVIP = new JPanel();
+        panelClienteVIP.setLayout(new BoxLayout(panelClienteVIP, BoxLayout.Y_AXIS));
+
+        JLabel labelClienteVIP = new JLabel("Cliente VIP:");
+        labelClienteVIP.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JTextField campoCPF = new JFormattedTextField(formatar("###.###.###-##"));
+        campoCPF.setMaximumSize(new Dimension(150, 25));
+
+        JButton botaoValidar = new JButton("Validar CPF");
+        botaoValidar.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panelClienteVIP.add(Box.createVerticalStrut(20));
+        panelClienteVIP.add(labelClienteVIP);
+        panelClienteVIP.add(Box.createVerticalStrut(10));
+        panelClienteVIP.add(campoCPF);
+        panelClienteVIP.add(Box.createVerticalStrut(10));
+        panelClienteVIP.add(botaoValidar);
+
+        return panelClienteVIP;
+    }
+
+    private JPanel criarPainelBotoes() {
+        JPanel panelBotoes = new JPanel();
+        JButton botaoFinalizarCompra = new JButton("Finalizar Compra");
+        panelBotoes.add(botaoFinalizarCompra);
+        return panelBotoes;
+    }
+
+    private MaskFormatter formatar(String mascara) {
+        MaskFormatter mask = null;
+        try {
+            mask = new MaskFormatter(mascara);
+        } catch (ParseException e) {
+            System.out.println("Formatacao com erro" + e);
+        }
+        return mask;
     }
 
 }
